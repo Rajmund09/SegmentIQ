@@ -1,0 +1,22 @@
+# Python bytecode / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Local configuration
+.env
+.flaskenv
+
+# SQLite databases
+instance/
+*.db
+
+# Uploaded datasets in dev/production
+SegmentIQ/uploads/*
+!SegmentIQ/uploads/store_customers.csv
