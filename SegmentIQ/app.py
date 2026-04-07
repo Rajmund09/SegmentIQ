@@ -1,4 +1,9 @@
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 from flask import Flask, render_template, url_for, flash, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -6,8 +11,8 @@ from flask_login import LoginManager, login_user, current_user, logout_user, log
 from models import db, User, Dataset
 
 app = Flask(__name__)
-# Secure secret key (in a real app, use environment variables)
-app.config['SECRET_KEY'] = 'f7b3b4a2e8c109d7a8e2b1c4f5'
+# Secure secret key loaded from environment variables
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-please-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///segmentiq.db'
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
 
