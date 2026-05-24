@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{{ url_for('dashboard') }}" class="sidebar-logo">SegmentIQ AI</a>
+        <div class="sidebar-nav">
+            <a href="{{ url_for('dashboard') }}">Dashboard Overview</a>
+            <a href="{{ url_for('upload') }}" class="active">Upload Dataset</a>
+            <a href="#">Reports</a>
+            <a href="{{ url_for('logout') }}" style="margin-top: 50px; color: #fca5a5;">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2 class="animate-up">Upload Dataset</h2>
+        <p class="animate-up" style="margin-bottom: 30px;">Upload a CSV file containing customer data to generate AI segments.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="glass-panel animate-up" style="max-width: 600px;">
+            <form method="POST" action="" enctype="multipart/form-data">
+                <input type="file" name="dataset" id="file-input" accept=".csv" style="display: none;" required>
+                <div class="upload-zone" id="drop-zone">
+                    <h3 style="color: var(--accent);">Drag & Drop CSV</h3>
+                    <p>or click to browse</p>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="submit" class="btn btn-primary" id="upload-btn" style="display: none;">Process with AI</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="glass-panel animate-up" style="margin-top: 30px; max-width: 600px;">
+            <h4>Dataset Requirements</h4>
+            <ul style="color: var(--text-secondary); margin-left: 20px; margin-top: 10px;">
+                <li>Must be a valid CSV file.</li>
+                <li>Required columns: <strong>Age, Annual Income, Spending Score</strong>.</li>
+                <li>Optional columns: CustomerID, Gender.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const uploadBtn = document.getElementById('upload-btn');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            dropZone.innerHTML = `<h3 style="color: #4ade80;">File Selected: ${fileInput.files[0].name}</h3><p>Ready to process</p>`;
+            uploadBtn.style.display = 'inline-block';
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="nav animate-up">
+    <a href="{{ url_for('home') }}" style="color: white; font-weight: bold; font-size: 1.5rem; text-decoration: none;">SegmentIQ AI</a>
+    <div class="nav-links">
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}" class="btn btn-primary" style="margin-left: 20px;">Get Started</a>
+    </div>
+</div>
+
+<div class="animate-up" style="text-align: center; margin-top: 100px;">
+    <h1 style="font-size: 4rem; margin-bottom: 20px; background: -webkit-linear-gradient(#fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        AI-Powered Customer Intelligence
+    </h1>
+    <p style="font-size: 1.2rem; max-width: 600px; margin: 0 auto 40px auto;">
+        Upload your customer data and let our advanced Machine Learning algorithms automatically segment your audience, generate actionable insights, and visualize your revenue drivers.
+    </p>
+    <a href="{{ url_for('register') }}" class="btn btn-primary" style="padding: 15px 40px; font-size: 1.1rem;">Start Segmenting Now</a>
+</div>
+
+<div class="grid animate-up" style="margin-top: 80px;">
+    <div class="glass-panel">
+        <h3>🤖 Auto-Segmentation</h3>
+        <p>No coding required. Our K-Means clustering algorithm automatically finds the optimal number of customer segments in your data.</p>
+    </div>
+    <div class="glass-panel">
+        <h3>📊 Interactive Analytics</h3>
+        <p>Explore stunning, interactive 3D and 2D visualizations built with Plotly to truly understand your audience.</p>
+    </div>
+    <div class="glass-panel">
+        <h3>💡 Smart Insights</h3>
+        <p>Get instant natural language insights telling you exactly which customer groups drive the most revenue.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{{ url_for('dashboard') }}" class="sidebar-logo">SegmentIQ AI</a>
+        <div class="sidebar-nav">
+            <a href="{{ url_for('dashboard') }}" class="active">Dashboard Overview</a>
+            <a href="{{ url_for('upload') }}">Upload Dataset</a>
+            <a href="#">Reports</a>
+            <a href="{{ url_for('logout') }}" style="margin-top: 50px; color: #fca5a5;">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="nav" style="padding: 0; margin-bottom: 20px; border: none;">
+            <h2 class="animate-up">Welcome, {{ current_user.username }}</h2>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if cluster_data %}
+            <div class="animate-up" style="margin-bottom: 30px;">
+                <h3 style="color: var(--accent);">✨ AI Insights</h3>
+                <div class="insights-container" id="insights-box">
+                    <!-- Insights injected via JS -->
+                </div>
+            </div>
+
+            <div class="grid animate-up">
+                <div class="glass-panel" style="grid-column: span 2;">
+                    <h3>Customer Segments (Income vs Spending)</h3>
+                    <div id="scatterChart" style="width: 100%; height: 400px;"></div>
+                </div>
+                <div class="glass-panel">
+                    <h3>Optimal Clusters (Elbow Method)</h3>
+                    <div id="elbowChart" style="width: 100%; height: 400px;"></div>
+                </div>
+            </div>
+
+            <div class="glass-panel animate-up" style="margin-top: 20px;">
+                <h3>Segment Profiles</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; text-align: left; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--glass-border);">
+                                <th style="padding: 10px;">Segment Name</th>
+                                <th style="padding: 10px;">Average Age</th>
+                                <th style="padding: 10px;">Average Income (k$)</th>
+                                <th style="padding: 10px;">Average Spending Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-table-body">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pass JSON safely -->
+            <script id="cluster-data" type="application/json">
+                {{ cluster_data | safe }}
+            </script>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const rawData = document.getElementById('cluster-data').textContent;
+                    const data = JSON.parse(rawData);
+
+                    // 1. Render Scatter Plot
+                    const scatterTrace = {
+                        x: data.scatter.x,
+                        y: data.scatter.y,
+                        mode: 'markers',
+                        type: 'scatter',
+                        text: data.scatter.hover_names,
+                        marker: {
+                            size: 12,
+                            color: data.scatter.cluster,
+                            colorscale: 'Viridis',
+                            showscale: false,
+                            opacity: 0.8
+                        }
+                    };
+                    
+                    const scatterLayout = {
+                        plot_bgcolor: 'rgba(0,0,0,0)',
+                        paper_bgcolor: 'rgba(0,0,0,0)',
+                        font: { color: '#f8fafc' },
+                        xaxis: { title: 'Annual Income (k$)', gridcolor: 'rgba(255,255,255,0.1)' },
+                        yaxis: { title: 'Spending Score (1-100)', gridcolor: 'rgba(255,255,255,0.1)' },
+                        margin: { l: 50, r: 20, t: 20, b: 50 }
+                    };
+                    Plotly.newPlot('scatterChart', [scatterTrace], scatterLayout, {responsive: true});
+
+                    // 2. Render Elbow Chart
+                    const elbowTrace = {
+                        x: Array.from({length: data.elbow.length}, (_, i) => i + 2),
+                        y: data.elbow,
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        line: { color: '#3b82f6', width: 3 },
+                        marker: { size: 8, color: '#8b5cf6' }
+                    };
+                    const elbowLayout = {
+                        plot_bgcolor: 'rgba(0,0,0,0)',
+                        paper_bgcolor: 'rgba(0,0,0,0)',
+                        font: { color: '#f8fafc' },
+                        xaxis: { title: 'Number of Clusters (k)', gridcolor: 'rgba(255,255,255,0.1)' },
+                        yaxis: { title: 'Inertia', gridcolor: 'rgba(255,255,255,0.1)' },
+                        margin: { l: 60, r: 20, t: 20, b: 50 }
+                    };
+                    Plotly.newPlot('elbowChart', [elbowTrace], elbowLayout, {responsive: true});
+
+                    // 3. Render Insights
+                    const insightsBox = document.getElementById('insights-box');
+                    data.insights.forEach(insight => {
+                        insightsBox.innerHTML += `
+                            <div class="glass-panel insight-card">
+                                <p style="color: white; font-weight: 500;">${insight}</p>
+                            </div>
+                        `;
+                    });
+
+                    // 4. Render Table
+                    const tbody = document.getElementById('summary-table-body');
+                    data.summary.forEach(row => {
+                        const name = data.labels[row.Cluster] || `Cluster ${row.Cluster}`;
+                        tbody.innerHTML += `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 12px; font-weight: bold; color: var(--accent);">${name}</td>
+                                <td style="padding: 12px;">${row.Age.toFixed(1)}</td>
+                                <td style="padding: 12px;">$${row['Annual Income'].toFixed(1)}k</td>
+                                <td style="padding: 12px;">${row['Spending Score'].toFixed(1)}</td>
+                            </tr>
+                        `;
+                    });
+                });
+            </script>
+        {% else %}
+            <div class="glass-panel animate-up" style="text-align: center; padding: 60px 20px;">
+                <h3 style="color: var(--text-secondary);">No Data Available</h3>
+                <p style="margin-bottom: 20px;">You haven't uploaded any datasets yet to generate insights.</p>
+                <a href="{{ url_for('upload') }}" class="btn btn-primary">Upload Dataset Now</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

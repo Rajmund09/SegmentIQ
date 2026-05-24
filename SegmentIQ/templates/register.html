@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="nav">
+    <a href="{{ url_for('home') }}" style="color: white; font-weight: bold; font-size: 1.5rem; text-decoration: none;">SegmentIQ AI</a>
+</div>
+
+<div class="animate-up" style="max-width: 450px; margin: 60px auto;">
+    <div class="glass-panel">
+        <h2 style="text-align: center; margin-bottom: 30px;">Create Account</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">Sign Up</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 20px;">
+            Already have an account? <a href="{{ url_for('login') }}" style="color: var(--accent);">Log in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
